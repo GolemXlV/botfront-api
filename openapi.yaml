@@ -10,7 +10,165 @@ schemes:
   - "https"
 
 paths:
-  "/project/{project_id}/response/name/{name}/lang/{lang}":
+  "/stories":
+    get:
+      summary: Get all user stories
+      description: Returns all user stories belong this project
+      operationId: getAllUserStories
+      produces:
+        - application/json
+      responses:
+        default:
+          description: Unknown error
+        400:
+          description: Bad request
+        404:
+          description: Project not found
+        403:
+          description: Unauthorized
+        200:
+          description: Succesfull response
+          schema:
+            $ref: "#/definitions/stories"
+    post:
+      summary: create new story
+      description: creates a new user story
+      operationId: createUserStory
+      parameters:
+        - in: body
+          name: body
+          description: NLU information the response should match
+          schema:
+            $ref: "#/definitions/story_create"
+      produces:
+        - application/json
+      responses:
+        default:
+          description: Unknown error
+        400:
+          description: Bad request
+        403:
+          description: Unauthorized
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/obj"
+
+  "/stories/{story_id}":
+    get:
+      summary: Get user story
+      description: A bot story
+      operationId: getUserStory
+      parameters:
+        - name: story_id
+          in: path
+          description: User story id
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        default:
+          description: Unknown error
+        400:
+          description: Bad request
+        404:
+          description: Project not found
+        403:
+          description: Unauthorized
+        200:
+          description: Succesfull response
+          schema:
+            $ref: "#/definitions/story"
+    put:
+      summary: Update user story
+      description: A bot story
+      operationId: updateUserStory
+      parameters:
+          - name: story_id
+            in: path
+            description: User story id
+            required: true
+            type: string
+          - in: body
+            name: body
+            description: NLU information the response should match
+            schema:
+              $ref: "#/definitions/story_create"
+      produces:
+        - application/json
+      responses:
+        default:
+          description: Unknown error
+        400:
+          description: Bad request
+        404:
+          description: Project not found
+        403:
+          description: Unauthorized
+        200:
+          description: Succesfull response
+          schema:
+            $ref: "#/definitions/story"
+    delete:
+      summary: Delete user story
+      description: A bot story
+      operationId: deleteUserStory
+      parameters:
+          - name: story_id
+            in: path
+            description: User story id
+            required: true
+            type: string
+      produces:
+        - application/json
+      responses:
+        default:
+          description: Unknown error
+        400:
+          description: Bad request
+        404:
+          description: Project not found
+        403:
+          description: Unauthorized
+        200:
+          description: Succesfull response
+          schema:
+            $ref: "#/definitions/obj"
+
+  "/stories/{story_id}/interactions/{interaction_id}":
+    get:
+      summary: Get interaction in user story
+      description: A bot interaction in user story
+      operationId: getInteractionById
+      parameters:
+        - name: story_id
+          in: path
+          description: User story id
+          required: true
+          type: string
+        - name: interaction_id
+          in: path
+          description: id of interaction
+          required: true
+          type: string
+      produces:
+        - application/json
+      responses:
+        default:
+          description: Unknown error
+        400:
+          description: Bad request
+        404:
+          description: Project not found
+        403:
+          description: Unauthorized
+        200:
+          description: Succesfull response
+          schema:
+            $ref: "#/definitions/interaction"
+
+  "/response/name/{name}/lang/{lang}":
     get:
       summary: Retrieve a bot response with its name
       description: >
@@ -18,11 +176,6 @@ paths:
         Use the Bot Responses section of the Botfront app for a complete refence ( in `yaml`).
       operationId: getBotResponse
       parameters:
-        - name: project_id
-          in: path
-          description: Botfront project ID
-          required: true
-          type: string
         - name: name
           in: path
           description: Bot response name
@@ -52,15 +205,10 @@ paths:
           schema:
             $ref: "#/definitions/sequence"
 
-  "/project/{project_id}/responses":
+  "/responses":
     get:
       operationId: getAllResponses
       parameters:
-        - name: project_id
-          in: path
-          description: Botfront project ID
-          required: true
-          type: string
         - name: timestamp
           in: query
           description: timestamp in ms of last update
@@ -86,15 +234,10 @@ paths:
         304:
           description: Not modified
 
-  "/project/{project_id}/response":
+  "/response":
     post:
       operationId: getResponse
       parameters:
-        - name: project_id
-          in: path
-          description: Botfront project ID
-          required: true
-          type: string
         - in: body
           name: body
           description: NLU information the response should match
@@ -127,16 +270,11 @@ paths:
           schema:
             $ref: "#/definitions/bot_response"
 
-  # "/project/{project_id}/tracker/{sender_id}/tag/{tag}":
+  # "/tracker/{sender_id}/tag/{tag}":
   #   get:
   #     summary: Legacy tracker update endpoint.
   #     operationId: getTracker
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     - name: sender_id
   #       in: path
   #       description: Conversation senderId
@@ -159,16 +297,11 @@ paths:
   #       200:
   #         description: Ok
 
-  # "/project/{project_id}/conversations/{sender_id}/{event_count}":
+  # "/conversations/{sender_id}/{event_count}":
   #   get:
   #     summary: Gets a tracker with the `event_count` latest events.
   #     operationId: getConversation
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     - name: sender_id
   #       in: path
   #       description: Conversation senderId
@@ -191,17 +324,12 @@ paths:
   #       200:
   #         description: Ok
 
-  # "/project/{project_id}/conversations/{sender_id}/insert":
+  # "/conversations/{sender_id}/insert":
   #   post:
   #     summary: Creates a new tracker.
   #     # description: Parse an utterance and returns NLU structured output.
   #     operationId: insertUpdateTracker
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     - name: sender_id
   #       in: path
   #       description: Conversation senderId
@@ -219,17 +347,12 @@ paths:
   #       200:
   #         description: Ok
 
-  # "/project/{project_id}/conversations/{sender_id}/update":
+  # "/conversations/{sender_id}/update":
   #   post:
   #     summary: Updates conversation tracker.
   #     # description: Parse an utterance and returns NLU structured output.
   #     operationId: postUpdateTracker
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     - name: sender_id
   #       in: path
   #       description: Conversation senderId
@@ -247,17 +370,12 @@ paths:
   #       200:
   #         description: Ok
 
-  # "/project/{project_id}/rules":
+  # "/rules":
   #   get:
   #     summary: Returns CORE rules.
   #     # description: Parse an utterance and returns NLU structured output.
   #     operationId: getRules
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     responses:
   #       default:
   #         description: Unknown error
@@ -270,17 +388,12 @@ paths:
   #       200:
   #         description: Ok
 
-  # "/project/{project_id}/credentials":
+  # "/credentials":
   #   get:
   #     summary: Returns CORE channels credentials.
   #     # description: Parse an utterance and returns NLU structured output.
   #     operationId: getCredentials
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     responses:
   #       default:
   #         description: Unknown error
@@ -293,17 +406,12 @@ paths:
   #       200:
   #         description: Ok
 
-  # "/project/{project_id}/endpoints":
+  # "/endpoints":
   #   get:
   #     summary: Returns CORE endpoints.
   #     # description: Parse an utterance and returns NLU structured output.
   #     operationId: getEndpoints
   #     parameters:
-  #     - name: project_id
-  #       in: path
-  #       description: Botfront project ID
-  #       required: true
-  #       type: string
   #     responses:
   #       default:
   #         description: Unknown error
@@ -316,17 +424,11 @@ paths:
   #       200:
   #         description: Ok
 
-  "/project/{project_id}/models/published":
+  "/models/published":
     get:
       summary: Returns the list of published NLU models.
       # description: Parse an utterance and returns NLU structured output.
       operationId: getModelsPublished
-      parameters:
-        - name: project_id
-          in: path
-          description: Botfront project ID
-          required: true
-          type: string
       responses:
         default:
           description: Unknown error
@@ -343,11 +445,6 @@ paths:
     get:
       operationId: getLastestImportedEvent,
       parameters:
-        - name: project_id
-          in: path
-          description: Botfront project ID
-          required: true
-          type: string
         - name: env
           in: path
           description: environement to get latest imported event from, should be one of production, staging, development
@@ -374,11 +471,6 @@ paths:
     post:
       operationId: importNewConversation,
       parameters:
-        - name: project_id
-          in: path
-          description: Botfront project ID
-          required: true
-          type: string
         - name: env
           in: path
           description: environement to import to, should be one of production, staging, development
@@ -497,11 +589,97 @@ definitions:
         type: string
         example: Something
 
+  story_create:
+    type: object
+    properties:
+      name:
+        type: string
+        example: "test story"
+      description:
+        type: string
+        example: ""
+
+  obj:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "5e1dab2b1be8f8000795f995"
+      timestamp:
+        type: integer
+        example: 1550677361363
+      status:
+        $ref: "#/definitions/status"
+
   conversations:
     definition: array of conversation element from the db
     type: array
     items:
       type: object
+
+  stories:
+    type: array
+    items:
+      $ref: "#/definitions/story"
+
+
+  story:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "5e1d8be91be8f8000795d376"
+      name:
+        type: string
+        example: "story name"
+      description:
+        type: string
+        example: ""
+      integrations:
+        type: array
+        items:
+          $ref: "#/definitions/interaction"
+      order:
+        type: array
+        description: "array with interactions id's in order of story flow"
+        items:
+          type: string
+      metrics:
+        type: array
+        items:
+          type: object
+
+  interaction:
+    type: object
+    properties:
+      id:
+        type: string
+        example: "5e1db4541be8f80007960929"
+      name:
+        type: string
+        example: "interaction name"
+      action:
+        type: string
+        example: ""
+      root:
+        type: boolean
+        example: false
+      references:
+        type: array
+        items:
+          type: string
+      userSays:
+        type: array
+        items:
+          type: string
+      triggers:
+        type: array
+        items:
+          type: object
+      responses:
+        type: array
+        items:
+          type: string
 
   bot_responses:
     type: object
@@ -548,6 +726,16 @@ definitions:
             payload:
               type: string
               example: "/basics.yes"
+
+  status:
+    type: object
+    properties:
+      code:
+        type: integer
+        example: 200
+      type:
+        type: string
+        example: "success"
 
 security:
   - api_key: []
